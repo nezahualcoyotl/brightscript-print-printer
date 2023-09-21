@@ -1,26 +1,47 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "brightscript-print-printer" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('brightscript-print-printer.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from brightscript-print-printer!');
+	let disposable = vscode.commands.registerCommand('brightscript-print-printer.printAll', () => {
+
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const doc = editor.document;
+			const text = doc.getText();
+
+			const signatureRegex = /^(sub|function) (\w+)\((.*)\)(?: as \w+)?$/gm;
+			let replacedText = text.replace(signatureRegex, (match, _, funcOrSubName, params) => {
+				let replacement = `${match}\n    print ">>>>>>>>>>>>>>>>>>>>>>>>>> FUNCTION ${funcOrSubName}() "`;
+
+				if (typeof params === 'string') {
+					params.split(',').forEach(parameter => {
+						const paramName = parameter.trim().split(' ')[0];
+						replacement += `\n    print ">>>>>>>>>>>>>>>>>>>>>>>>>> PARAM ${paramName} " ${paramName}`;
+					});
+				}
+
+				return replacement;
+			});
+
+			const returnRegex = /^(\s*)return (.+)$/gm;
+			replacedText = replacedText.replace(returnRegex, (match, indent, returnValue) => {
+				return `${indent}print ">>>>>>>>>>>>>>>>>>>>>>>>>> RETURN ${returnValue}  " ${returnValue}\n${match}`;
+			});
+
+			const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(text.length));
+			editor.edit(editBuilder => {
+				editBuilder.replace(fullRange, replacedText);
+			});
+		} else {
+			vscode.window.showInformationMessage('Open a BrightScript file to use this extension.');
+		}
+
+
 	});
 
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

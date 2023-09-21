@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "brightscript-print-printer.helloWorld",
-        "title": "Hello World"
+        "command": "brightscript-print-printer.printAll",
+        "title": "Print all"
       }
     ]
   },
