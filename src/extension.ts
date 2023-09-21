@@ -78,7 +78,6 @@ function appendParameters(text = "") {
   });
 }
 
-
 function appendReturns(text = "") {
   const returnRegex = /^(\s*)return (.+)$/gm;
   return text.replace(returnRegex, (match, indent, returnValue) => {
