@@ -50,8 +50,12 @@ function applyTextTransformation(transformation = (text: string) => text) {
 
 function appendFunctionNames(text = "") {
   const signatureRegex = /^(sub|function) (\w+)\((.*)\)(?: as \w+)?$/gm;
-  return text.replace(signatureRegex, (match, _, funcOrSubName) => {
-    return `${match}\n    print ">>>>>>>>>>>>>>>>>>>>>>>>>> FUNCTION ${funcOrSubName}() "`;
+  return text.replace(signatureRegex, (match, _, funcOrSubName, params) => {
+    if (typeof params === "string" && params.trim() === "") {
+      return `${match}\n    print ">>>>>>>>>>>>>>>>>>>>>>>>>> FUNCTION ${funcOrSubName}() "`;
+    } else {
+      return match; // Just return the original match if parameters are present
+    }
   });
 }
 
@@ -59,7 +63,9 @@ function appendParameters(text = "") {
   const signatureRegex = /^(sub|function) (\w+)\((.*)\)(?: as \w+)?$/gm;
   return text.replace(signatureRegex, (match, _, funcOrSubName, params) => {
     let replacement = match;
+
     if (typeof params === "string" && params.trim() !== "") {
+      replacement += `\n    print ">>>>>>>>>>>>>>>>>>>>>>>>>> FUNCTION ${funcOrSubName}() "`;
       params.split(",").forEach((parameter) => {
         const paramName = parameter.trim().split(" ")[0];
         if (paramName) {
@@ -67,9 +73,11 @@ function appendParameters(text = "") {
         }
       });
     }
+
     return replacement;
   });
 }
+
 
 function appendReturns(text = "") {
   const returnRegex = /^(\s*)return (.+)$/gm;
