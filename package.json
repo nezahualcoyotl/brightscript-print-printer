@@ -67,5 +67,9 @@
   },
   "dependencies": {
     "vsce": "^2.15.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nezahualcoyotl/brightscript-print-printer.git"
   }
 }
